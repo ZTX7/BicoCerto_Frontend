@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:flutter_application/home_page.dart';
 
@@ -10,3 +11,4 @@ class AppWidget extends StatelessWidget{
     );
   }
 }
+*/
