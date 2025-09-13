@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget{
+  const HomePage({super.key});
   @override
   State<StatefulWidget> createState() {
     return HomePageState();
@@ -23,7 +24,7 @@ class HomePageState extends State<HomePage>{
         height: double.infinity,
         decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/macaco.png'), // caminho da imagem
+              image: AssetImage('assets/img/macaco.png'), // caminho da imagem
               fit: BoxFit.cover, // preenche toda a área
             ),
           ) 
