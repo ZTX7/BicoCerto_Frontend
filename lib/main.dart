@@ -5,6 +5,7 @@ import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'services/auth_service.dart';
 import 'pages/home_page.dart';
+// importações de uni_links removidas
 
 void main() {
   runApp(const MyApp());
@@ -37,6 +38,7 @@ class AuthChecker extends StatefulWidget {
 class _AuthCheckerState extends State<AuthChecker> {
   final AuthService _authService = AuthService();
   bool _isLoggedIn = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -47,13 +49,24 @@ class _AuthCheckerState extends State<AuthChecker> {
   // Função que checa o status de login e atualiza a tela.
   void _checkAuthStatus() async {
     bool status = await _authService.getAuthStatus();
-    setState(() {
-      _isLoggedIn = status;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        _isLoggedIn = status;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     // Se estiver logado, mostra a HomePage. Caso contrário, mostra a tela de login.
     if (_isLoggedIn) {
       return const HomePage();

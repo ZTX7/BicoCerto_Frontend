@@ -4,39 +4,28 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Classe que gerencia toda a comunicação com a API de autenticação.
 class AuthService {
-  // URL base da sua API. Altere se necessário.
-  final String baseUrl = 'http://127.0.0.1:8000';
-  // Instância do FlutterSecureStorage para armazenar dados de forma segura.
+  //final String baseUrl = 'http://127.0.0.1:8000'; windows
+  final String baseUrl = 'http://10.0.2.2:8000'; // android
   final _storage = const FlutterSecureStorage();
 
-  // --- Métodos de Armazenamento do Token ---
-
-  // Salva o token de acesso no armazenamento seguro.
   Future<void> saveToken(String token) async {
     await _storage.write(key: 'access_token', value: token);
   }
 
-  // Recupera o token de acesso do armazenamento seguro.
   Future<String?> getToken() async {
     return await _storage.read(key: 'access_token');
   }
 
-  // Deleta o token de acesso do armazenamento seguro.
   Future<void> deleteToken() async {
     await _storage.delete(key: 'access_token');
   }
   
-  // Verifica se o usuário está autenticado checando a existência do token.
   Future<bool> getAuthStatus() async {
     final token = await getToken();
     return token != null;
   }
 
-  // --- Métodos de Autenticação com a API ---
-
-  // Faz a requisição de registro de um novo usuário para a API.
   Future<Map<String, dynamic>> register({
     required String email,
     required String password,
@@ -60,7 +49,6 @@ class AuthService {
     }
   }
 
-  // Faz a requisição de login para a API e salva o token se o login for bem-sucedido.
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
@@ -80,14 +68,13 @@ class AuthService {
     if (response.statusCode == 200) {
       final responseBody = json.decode(response.body);
       final String accessToken = responseBody['data']['access_token'];
-      await saveToken(accessToken); // Salva o token aqui.
+      await saveToken(accessToken);
       return responseBody;
     } else {
       throw Exception('Falha no login: ${response.statusCode}');
     }
   }
 
-  // Envia a requisição de logout para a API e remove o token do armazenamento local.
   Future<void> logout() async {
     final token = await getToken();
     if (token != null) {
@@ -97,11 +84,50 @@ class AuthService {
           'Authorization': 'Bearer $token',
         },
       );
-      await deleteToken(); // Remove o token localmente.
+      await deleteToken();
     }
   }
 
-  // Simula a obtenção de informações do dispositivo.
+  // >>> NOVO MÉTODO PARA SOLICITAR RECUPERAÇÃO DE SENHA <<<
+  Future<Map<String, dynamic>> forgotPassword({required String email}) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/password/forgot'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'email': email}),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Falha ao solicitar redefinição: ${response.statusCode}');
+    }
+  }
+
+  // >>> NOVO MÉTODO PARA REDEFINIR A SENHA <<<
+  Future<Map<String, dynamic>> resetPassword({
+    required String resetToken,
+    required String code,
+    required String newPassword,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/password/reset'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'reset_token': resetToken,
+        'code': code,
+        'new_password': newPassword,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Falha ao redefinir a senha: ${response.statusCode}');
+    }
+  }
+
   Future<Map<String, dynamic>> getDeviceInfo() async {
     return {
       "device_id": "generic-test-device-id",

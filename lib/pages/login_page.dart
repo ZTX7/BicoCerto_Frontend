@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'home_page.dart'; // Importa a página para a qual navegaremos após o login.
+import 'home_page.dart';
+import 'forgot_password_page.dart'; // Importe a nova página
 
-// Widget para a página de Login.
 class LoginPage extends StatefulWidget {
   final Function onRegisterPressed;
   const LoginPage({super.key, required this.onRegisterPressed});
@@ -19,7 +19,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
 
-  // Função que lida com o login.
   void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -32,12 +31,9 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login realizado com sucesso!')),
         );
-        
-        // Navega para a HomePage e remove a página de login da pilha de navegação.
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
-
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro no login: ${e.toString()}')),
@@ -46,7 +42,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Função utilitária para decorar os campos de texto.
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
@@ -68,7 +63,6 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Título 'LOGIN' e campos de texto.
           const Text(
             'LOGIN',
             style: TextStyle(
@@ -90,8 +84,23 @@ class _LoginPageState extends State<LoginPage> {
             obscureText: true,
             validator: (value) => value!.isEmpty ? 'A senha é obrigatória' : null,
           ),
-          const SizedBox(height: 25),
-          // Botão de 'Entrar'.
+          const SizedBox(height: 15),
+          // Botão de 'Esqueceu a senha?'.
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+                );
+              },
+              child: const Text(
+                'Esqueceu a senha?',
+                style: TextStyle(color: Color.fromARGB(255, 25, 116, 172)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: _handleLogin,
             style: ElevatedButton.styleFrom(
@@ -105,7 +114,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           const SizedBox(height: 20),
-          // Botão de navegação para a página de Cadastro.
           TextButton(
             onPressed: () => widget.onRegisterPressed(),
             child: const Text(
